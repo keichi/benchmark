@@ -7,6 +7,8 @@ import torch.optim as optim
 from torchbenchmark.util.model import BenchmarkModel
 from torchvision import models
 
+import sol
+import sol.pytorch
 
 class TorchVisionModel(BenchmarkModel):
     # To recognize this is a torchvision model
@@ -32,6 +34,7 @@ class TorchVisionModel(BenchmarkModel):
             self.model = getattr(models, model_name)(pretrained=True).to(self.device)
         else:
             self.model = getattr(models, model_name)(weights=weights).to(self.device)
+        self.model = sol.optimize(self.model)
         self.example_inputs = (
             torch.randn((self.batch_size, 3, 224, 224)).to(self.device),
         )

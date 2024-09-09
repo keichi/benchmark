@@ -31,7 +31,7 @@ else:
 
 
 WARMUP_ROUNDS = 3
-SUPPORT_DEVICE_LIST = ["cpu", "cuda"]
+SUPPORT_DEVICE_LIST = ["cpu", "cuda", "ve"]
 if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
     SUPPORT_DEVICE_LIST.append("mps")
 SUPPORT_PROFILE_LIST = [
@@ -209,6 +209,13 @@ def run_one_step(
             result_summary.append(
                 (start_event.elapsed_time(end_event), (t1 - t0) / 1_000_000)
             )
+        if args.device == "ve":
+            torch.ve.synchronize()
+            t0 = time.time_ns()
+            func()
+            torch.ve.synchronize()
+            t1 = time.time_ns()
+            result_summary.append([(t1 - t0) / 1_000_000])
         elif args.device == "mps":
             t0 = time.time_ns()
             func()
